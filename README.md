@@ -21,7 +21,7 @@ Initial Setup Phase
 
 ## Tech Stack
 
-* Frontend: React
+* Frontend: React.js
 * Backend: Node.js + Express
 * Database: MongoDB
 
