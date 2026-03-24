@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-
+import transactionRoutes from "./routes/transactionRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +19,7 @@ mongoose.connect(process.env.MONGO_URI)
   
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 // test route
 app.get("/", (req, res) => {
