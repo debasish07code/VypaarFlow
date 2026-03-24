@@ -5,11 +5,13 @@ import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import cors from "cors";
 
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 
 // middleware
 app.use(express.json());
