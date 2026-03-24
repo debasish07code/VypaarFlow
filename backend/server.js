@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 
 dotenv.config();
@@ -17,6 +18,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.log("DB Error:", err));
   
 app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 
 // test route
 app.get("/", (req, res) => {
