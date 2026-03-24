@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import transactionRoutes from "./routes/transactionRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
+
 
 dotenv.config();
 
@@ -19,7 +21,8 @@ mongoose.connect(process.env.MONGO_URI)
   
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/transactions", transactionRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // test route
 app.get("/", (req, res) => {
