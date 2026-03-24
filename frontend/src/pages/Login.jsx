@@ -21,7 +21,8 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await API.post("/login", form);
+      const res = await API.post("/users/login", form);
+      console.log(res);
       localStorage.setItem("token", res.data.token);
       alert("Login successful");
       navigate("/dashboard");
