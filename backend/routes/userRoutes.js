@@ -9,12 +9,4 @@ router.post("/login", loginUser);
 router.get("/profile", authMiddleware, getUserProfile);
 router.put("/change-password", authMiddleware, changePassword);
 
-// 🔒 TEST PROTECTED ROUTE
-router.get("/profile", authMiddleware, (req, res) => {
-  res.json({
-    message: "Protected route working",
-    userId: req.user,
-  });
-});
-
 export default router;

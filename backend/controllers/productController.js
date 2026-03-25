@@ -10,7 +10,7 @@ export const addProduct = async (req, res) => {
       price,
       quantity,
       category,
-      user: req.user, // from JWT middleware
+      user: req.user._id,
     });
 
     res.status(201).json(product);
@@ -22,7 +22,7 @@ export const addProduct = async (req, res) => {
 // 📋 GET ALL PRODUCTS (only user's products)
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find({ user: req.user });
+    const products = await Product.find({ user: req.user._id }).lean();
 
     res.json(products);
   } catch (error) {
@@ -40,7 +40,7 @@ export const deleteProduct = async (req, res) => {
     }
 
     // ensure user owns product
-    if (product.user.toString() !== req.user) {
+    if (product.user.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
@@ -60,7 +60,7 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    if (product.user.toString() !== req.user) {
+    if (product.user.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
