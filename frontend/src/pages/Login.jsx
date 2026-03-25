@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import API from "../api/axios";
 
 export default function Login() {
@@ -8,8 +8,16 @@ export default function Login() {
   const [focused, setFocused] = useState(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [showPassword, setShowPassword] = useState(false);
-
+  const [error, setError] = useState("");
+  const location = useLocation();
+  const justRegistered = location.state?.registered;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const handleMove = (e) => setMouse({ x: e.clientX, y: e.clientY });
@@ -20,14 +28,15 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       const res = await API.post("/users/login", form);
-      console.log(res);
       localStorage.setItem("token", res.data.token);
-      alert("Login successful");
+      localStorage.setItem("userName", res.data.name);
+      localStorage.setItem("userEmail", res.data.email);
       navigate("/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
@@ -145,7 +154,7 @@ export default function Login() {
                 ))}
               </div>
               <p className="text-slate-300 italic">"VypaarFlow transformed how we manage our finances. The insights are incredible."</p>
-              <p className="text-slate-400 text-sm mt-3">- Rahul Sharma, CEO at TechStart</p>
+              {/* <p className="text-slate-400 text-sm mt-3">- Rahul Sharma, CEO at TechStart</p> */}
             </div>
           </div>
         </div>
@@ -178,6 +187,26 @@ export default function Login() {
             
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
+
+              {/* Inline error */}
+              {error && (
+                <div className="flex items-center gap-2 px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+                  <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-rose-400 text-sm">{error}</span>
+                </div>
+              )}
+
+              {/* Success from signup */}
+              {justRegistered && !error && (
+                <div className="flex items-center gap-2 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                  <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-emerald-400 text-sm">Account created! Please sign in.</span>
+                </div>
+              )}
               
               {/* Email */}
               <div style={{animation:'slideUp 0.6s ease-out 0.2s both'}}>

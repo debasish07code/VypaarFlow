@@ -8,8 +8,14 @@ export default function Signup() {
   const [focused, setFocused] = useState(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [showPassword, setShowPassword] = useState(false);
-
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const handleMove = (e) => setMouse({ x: e.clientX, y: e.clientY });
@@ -20,13 +26,12 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
-      const res = await API.post("/users/register", form);
-      localStorage.setItem("token", res.data.token);
-      alert("Signup successful");
-      navigate("/dashboard");
+      await API.post("/users/register", form);
+      navigate("/login", { state: { registered: true } });
     } catch (err) {
-      alert(err.response?.data?.message || "Signup failed");
+      setError(err.response?.data?.message || "Signup failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -178,6 +183,16 @@ export default function Signup() {
             
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
+
+              {/* Inline error */}
+              {error && (
+                <div className="flex items-center gap-2 px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+                  <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-rose-400 text-sm">{error}</span>
+                </div>
+              )}
               
               {/* Name */}
               <div style={{animation:'slideUp 0.6s ease-out 0.2s both'}}>
