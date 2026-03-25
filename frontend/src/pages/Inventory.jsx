@@ -15,6 +15,9 @@ export default function Inventory() {
   const [editId, setEditId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [filterStock, setFilterStock] = useState("All");
+  const [sortPrice, setSortPrice] = useState("");
   const [toast, setToast] = useState(null);
   const notify = (message, type = "success") => setToast({ message, type });
 
@@ -62,15 +65,27 @@ export default function Inventory() {
     }
   };
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const categories = ["All", ...new Set(products.map(p => p.category))];
+
+  let filtered = products.filter((p) => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = filterCategory === "All" || p.category === filterCategory;
+
+    let matchesStock = true;
+    if (filterStock === "In Stock") matchesStock = p.quantity > 5;
+    if (filterStock === "Low Stock") matchesStock = p.quantity > 0 && p.quantity <= 15;
+    if (filterStock === "Out of Stock") matchesStock = p.quantity === 0;
+
+    return matchesSearch && matchesCategory && matchesStock;
+  });
+
+  if (sortPrice === "asc") filtered.sort((a, b) => a.price - b.price);
+  if (sortPrice === "desc") filtered.sort((a, b) => b.price - a.price);
 
   return (
     <Layout title="Inventory" subtitle="Manage your products and stock">
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="flex flex-col xl:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "rgba(120,113,108,0.6)" }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -82,14 +97,40 @@ export default function Inventory() {
             style={{ background: "rgba(0,0,0,0.04)", borderColor: "rgba(0,0,0,0.1)", color: "#78716c", border: "1px solid rgba(0,0,0,0.1)", placeholder: "rgba(120,113,108,0.5)" }}
           />
         </div>
-        <button onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 text-white rounded-xl text-sm font-medium transition-colors shrink-0"
-          style={{ background: "linear-gradient(135deg,#78716c,#6b7280)" }}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Product
-        </button>
+
+        <div className="flex flex-wrap gap-3 shrink-0">
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-3 py-2.5 rounded-xl text-sm focus:outline-none cursor-pointer"
+            style={{ background: "rgba(0,0,0,0.04)", borderColor: "rgba(0,0,0,0.1)", color: "#78716c", border: "1px solid rgba(0,0,0,0.1)" }}>
+            {categories.map(c => <option key={c} value={c}>{c === "All" ? "All Categories" : c}</option>)}
+          </select>
+
+          <select value={filterStock} onChange={(e) => setFilterStock(e.target.value)}
+            className="px-3 py-2.5 rounded-xl text-sm focus:outline-none cursor-pointer"
+            style={{ background: "rgba(0,0,0,0.04)", borderColor: "rgba(0,0,0,0.1)", color: "#78716c", border: "1px solid rgba(0,0,0,0.1)" }}>
+            <option value="All">All Stock</option>
+            <option value="In Stock">In Stock (&gt;5)</option>
+            <option value="Low Stock">Low Stock (1-5)</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+
+          <select value={sortPrice} onChange={(e) => setSortPrice(e.target.value)}
+            className="px-3 py-2.5 rounded-xl text-sm focus:outline-none cursor-pointer"
+            style={{ background: "rgba(0,0,0,0.04)", borderColor: "rgba(0,0,0,0.1)", color: "#78716c", border: "1px solid rgba(0,0,0,0.1)" }}>
+            <option value="">Sort Price</option>
+            <option value="asc">Price: Low to High</option>
+            <option value="desc">Price: High to Low</option>
+          </select>
+
+          <button onClick={openAdd}
+            className="flex items-center gap-2 px-4 py-2.5 text-white rounded-xl text-sm font-medium transition-colors"
+            style={{ background: "linear-gradient(135deg,#78716c,#6b7280)" }}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -130,11 +171,11 @@ export default function Inventory() {
                     <td className="px-6 py-4" style={{ color: "rgba(120,113,108,0.7)" }}>₹{Number(p.price).toLocaleString()}</td>
                     <td className="px-6 py-4">
                       <span className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                        style={p.quantity <= 5 
+                        style={p.quantity <= 5
                           ? { background: "rgba(220,38,38,0.15)", color: "#dc2626" }
-                          : p.quantity <= 20 
-                          ? { background: "rgba(217,119,6,0.15)", color: "#d97706" }
-                          : { background: "rgba(5,150,105,0.15)", color: "#059669" }}>
+                          : p.quantity <= 20
+                            ? { background: "rgba(217,119,6,0.15)", color: "#d97706" }
+                            : { background: "rgba(5,150,105,0.15)", color: "#059669" }}>
                         {p.quantity} units
                       </span>
                     </td>
