@@ -17,7 +17,7 @@ API.interceptors.response.use(
   (res) => res,
   (err) => {
     const url = err.config?.url || "";
-    const isAuthEndpoint = url.includes("/users/login") || url.includes("/users/register");
+    const isAuthEndpoint = url.includes("/users/login") || url.includes("/users/register") || url.includes("/users/forgot-password") || url.includes("/users/reset-password") || url.includes("/users/google");
     if (err.response?.status === 401 && !isAuthEndpoint) {
       localStorage.clear();
       window.location.href = "/login";
