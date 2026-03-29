@@ -2,12 +2,16 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import compression from "compression";
+import cors from "cors";
+
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
-import cors from "cors";
+import workerRoutes from "./routes/workerRoutes.js";
+import invoiceRoutes from "./routes/invoiceRoutes.js";
+import customerRoutes from "./routes/customerRoutes.js";
 
 dotenv.config();
 
@@ -24,14 +28,16 @@ mongoose.connect(process.env.MONGO_URI, {
 })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log("DB Error:", err));
-  
+
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/workers", workerRoutes);
+app.use("/api/invoice", invoiceRoutes);
+app.use("/api/customers", customerRoutes);
 
-// test route
 app.get("/", (req, res) => {
   res.send("VypaarFlow API is running...");
 });

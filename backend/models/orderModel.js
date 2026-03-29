@@ -7,6 +7,11 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    // Customer info captured at order creation
+    customer: {
+      name: { type: String, default: "Walk-in Customer" },
+      mobile: { type: String, default: "" },
+    },
     products: [
       {
         product: {
@@ -21,11 +26,20 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    // Only two lifecycle stages
     status: {
       type: String,
-      enum: ["pending", "completed"],
+      enum: ["pending", "approved"],
       default: "pending",
     },
+    // Timeline: each status change is recorded with a timestamp
+    statusHistory: [
+      {
+        status: { type: String },
+        timestamp: { type: Date, default: Date.now },
+        note: { type: String, default: "" },
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -33,4 +47,4 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ user: 1 });
 orderSchema.index({ user: 1, createdAt: -1 });
 
-export default mongoose.model("Order", orderSchema);
+export default mongoose.model("Order", orderSchema);

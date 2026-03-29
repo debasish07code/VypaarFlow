@@ -99,6 +99,29 @@ export const getDashboardData = async (req, res) => {
       lineChartData.push({ date: dayKey, orders: dailyOrdersData[dayKey] || 0 });
     }
 
+    // Top Customers Data
+    const customerMap = {};
+    orders.forEach(o => {
+      if (o.customer && o.customer.name) {
+        customerMap[o.customer.name] = (customerMap[o.customer.name] || 0) + o.totalAmount;
+      }
+    });
+    const topCustomers = Object.entries(customerMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 7)
+      .map(([name, spent]) => ({ name, spent }));
+
+    // Peak Sales Hours (Dummy Data as requested)
+    const peakSalesHours = [
+      { time: "8 AM", sales: 120 },
+      { time: "10 AM", sales: 300 },
+      { time: "12 PM", sales: 450 },
+      { time: "2 PM", sales: 800 },
+      { time: "4 PM", sales: 650 },
+      { time: "6 PM", sales: 400 },
+      { time: "8 PM", sales: 250 },
+    ];
+
     res.json({
       totalSales,
       totalOrders,
@@ -115,6 +138,8 @@ export const getDashboardData = async (req, res) => {
       lineChartData,
       globalRank,
       totalPlatformUsers,
+      topCustomers,
+      peakSalesHours,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
